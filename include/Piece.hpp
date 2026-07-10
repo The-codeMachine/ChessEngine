@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include <cstdint>
 
 class Board;
@@ -12,7 +13,7 @@ public:
         _x(x), _y(y), _white(white), _value(value) {}
 
     virtual bool move(int x, int y);
-    virtual void calculateValidMoves(Board& board) const noexcept;
+    virtual std::vector<int> calculateValidMoves(const Board& board) const noexcept;
 
     int value() const noexcept {
         return _value;
