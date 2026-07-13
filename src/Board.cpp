@@ -4,13 +4,15 @@
 #include <stdexcept>
 #include <cctype>
 
+#include <iostream>
+
 Board::Board() {
-    std::string board = 
+    std::string FEN = 
     "rnbqkbnr/pppppppp/8/8"
     "/8/8/PPPPPPPP/RNBQKBNR "
     "w KQkq - 0 1";
 
-    Board(board);
+    _parse_FEN(FEN);
 }
 
 Board::Board(const std::string &FEN) {
@@ -26,6 +28,26 @@ Piece Board::at(uint16_t x, uint16_t y) const {
 
 bool Board::empty(uint16_t x, uint16_t y) const {
     return at(x, y) == Piece::EMPTY;
+}
+
+std::string Board::toString(bool pretty) const noexcept {
+    std::string out;
+    
+    for (int i = 7; i > -1; --i) {
+        out += "----------------------------------\n";
+        out += std::to_string(i + 1);
+        for (uint8_t j = 0; j < 8; ++j) {
+            out += "| ";
+            out += _convert_to_char(at(j, i));
+            out += " ";
+        }
+
+        out += "|";
+        out += '\n';
+    }
+    out += "----------------------------------\n";
+
+    return out;
 }
 
 bool Board::_valid_pos(uint16_t x, uint16_t y) {
@@ -70,7 +92,7 @@ Piece Board::_convert_to_piece(const char c) {
             return Piece::B_KING;
 
         default:
-            break;
+            return Piece::EMPTY;
     }
 }
 
@@ -103,11 +125,11 @@ char Board::_convert_to_char(Piece piece) {
         case Piece::B_KING: 
             return 'k';
         default: 
-            break;
+            return ' ';
     }
 }
 
-void Board::_parse_FEN(std::string FEN) {
+void Board::_parse_FEN(const std::string &FEN) {
     std::istringstream iss(FEN);
 
     std::string placement, stm, castling, ep;
@@ -118,22 +140,33 @@ void Board::_parse_FEN(std::string FEN) {
 
     _board.fill(static_cast<uint8_t>(Piece::EMPTY));
 
-    std::size_t idx = 0;
+    int rank = 7;   // FEN starts at rank 8
+    int file = 0;
+
     for (char c : placement) {
-        if (c == '/')
+        if (c == '/') {
+            if (file != 8)
+                throw std::runtime_error("Invalid FEN row.");
+
+            --rank;
+            file = 0;
             continue;
+        }
 
         if (std::isdigit(static_cast<unsigned char>(c))) {
-            idx += c - '0';
+            file += c - '0';
         } else {
-            if (idx >= 64)
-                throw std::runtime_error("Too many squares in placement.");
-            _board[idx++] =
+            if (file >= 8 || rank < 0)
+                throw std::runtime_error("Invalid FEN placement.");
+
+            _board[_convert_to_1d(file, rank)] =
                 static_cast<uint8_t>(_convert_to_piece(c));
+
+            ++file;
         }
     }
 
-    if (idx != 64)
+    if (rank != 0 || file != 8)
         throw std::runtime_error("Incorrect number of squares.");
 
     _turn = (stm == "w");

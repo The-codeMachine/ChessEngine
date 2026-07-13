@@ -8,4 +8,5 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(ChessEngine 
     src/main.cpp 
+    src/Board.cpp
 )
