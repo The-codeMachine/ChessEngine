@@ -31,23 +31,10 @@ bool Board::empty(uint16_t x, uint16_t y) const {
 }
 
 std::string Board::toString(bool pretty) const noexcept {
-    std::string out;
-    
-    for (int i = 7; i > -1; --i) {
-        out += "----------------------------------\n";
-        out += std::to_string(i + 1);
-        for (uint8_t j = 0; j < 8; ++j) {
-            out += "| ";
-            out += _convert_to_char(at(j, i));
-            out += " ";
-        }
-
-        out += "|";
-        out += '\n';
-    }
-    out += "----------------------------------\n";
-
-    return out;
+    if (pretty) 
+        return _to_string();
+    else 
+        return _to_fen();
 }
 
 bool Board::_valid_pos(uint16_t x, uint16_t y) {
@@ -159,8 +146,7 @@ void Board::_parse_FEN(const std::string &FEN) {
             if (file >= 8 || rank < 0)
                 throw std::runtime_error("Invalid FEN placement.");
 
-            _board[_convert_to_1d(file, rank)] =
-                static_cast<uint8_t>(_convert_to_piece(c));
+            _board[_convert_to_1d(file, rank)] = static_cast<uint8_t>(_convert_to_piece(c));
 
             ++file;
         }
@@ -186,7 +172,7 @@ void Board::_parse_FEN(const std::string &FEN) {
     }
 
     if (ep == "-") {
-        _en_passant = -1; // or std::nullopt
+        _en_passant = -1; 
     } else {
         if (ep.size() != 2 ||
             ep[0] < 'a' || ep[0] > 'h' ||
@@ -196,10 +182,115 @@ void Board::_parse_FEN(const std::string &FEN) {
         int file = ep[0] - 'a';
         int rank = ep[1] - '1';
 
-        // Adjust if your board indexing differs.
         _en_passant = rank * 8 + file;
     }
 
     _half_clock_move_count = halfmove;
     _move_count = fullmove;
+}
+
+std::string Board::_to_string() const noexcept {
+    std::string out;
+    
+    for (int i = 7; i > -1; --i) {
+        out += "----------------------------------\n";
+        out += std::to_string(i + 1);
+        for (uint8_t j = 0; j < 8; ++j) {
+            out += "| ";
+            out += _convert_to_char(at(j, i));
+            out += " ";
+        }
+
+        out += "|";
+        out += '\n';
+    }
+    out += "----------------------------------\n";
+
+    return out;
+}
+
+std::string Board::_to_fen() const noexcept {
+    std::string out;
+
+    // Piece placement
+    for (int rank = 7; rank >= 0; --rank) {
+        uint8_t empty = 0;
+
+        for (int file = 0; file < 8; ++file) {
+            Piece piece = static_cast<Piece>(_board[_convert_to_1d(file, rank)]);
+
+            if (piece == Piece::EMPTY) {
+                ++empty;
+                continue;
+            }
+
+            if (empty > 0) {
+                out += std::to_string(empty);
+                empty = 0;
+            }
+
+            out += _convert_to_char(piece);
+        }
+
+        if (empty > 0)
+            out += std::to_string(empty);
+
+        if (rank != 0)
+            out += '/';
+    }
+
+    // Side to move
+    out += ' ';
+    out += (_turn ? 'w' : 'b');
+
+    // Castling rights
+    out += ' ';
+
+    bool hasCastle = false;
+
+    if (_castle_rights[0]) {
+        out += 'K';
+        hasCastle = true;
+    }
+
+    if (_castle_rights[1]) {
+        out += 'Q';
+        hasCastle = true;
+    }
+
+    if (_castle_rights[2]) {
+        out += 'k';
+        hasCastle = true;
+    }
+
+    if (_castle_rights[3]) {
+        out += 'q';
+        hasCastle = true;
+    }
+
+    if (!hasCastle)
+        out += '-';
+
+    // En passant target square
+    out += ' ';
+
+    if (_en_passant == -1) {
+        out += '-';
+    } else {
+        int file = _en_passant % 8;
+        int rank = _en_passant / 8;
+
+        out += static_cast<char>('a' + file);
+        out += static_cast<char>('1' + rank);
+    }
+
+    // Halfmove clock
+    out += ' ';
+    out += std::to_string(_half_clock_move_count);
+
+    // Fullmove number
+    out += ' ';
+    out += std::to_string(_move_count);
+
+    return out;
 }

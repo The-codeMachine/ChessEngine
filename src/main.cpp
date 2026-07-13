@@ -6,9 +6,12 @@
 int main() {
 
     try {
-    Board b("4k2r/6r1/8/8/8/8/3R4/R3K3 w Qk - 0 1");
-    std::cout << b.toString(true) << "\n";
-    } catch (const std::exception& e) {
+        Board b("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1");
+        
+        std::cout << b.toString(true) << "\n";
+        std::cout << b.toString(false) << "\n";
+    }
+    catch (const std::exception &e) {
         std::cout << "idk: " << e.what() << "\n";
     }
 

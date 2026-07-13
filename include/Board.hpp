@@ -30,7 +30,7 @@ public:
     bool empty(uint16_t x, uint16_t y) const;
     bool move(uint16_t x, uint16_t y, uint16_t xx, uint16_t yy);
 
-    std::string toString(bool pretty) const noexcept;
+    std::string toString(bool pretty = false) const noexcept;
 
 private:
     static bool _valid_pos(uint16_t x, uint16_t y);
@@ -42,6 +42,9 @@ private:
     static char _convert_to_char(Piece piece);
 
     void _parse_FEN(const std::string &FEN);
+
+    std::string _to_string() const noexcept;
+    std::string _to_fen() const noexcept;
 
 private:
     std::array<uint8_t, 64> _board;
