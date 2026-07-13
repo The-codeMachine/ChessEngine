@@ -23,7 +23,7 @@ enum class Piece : uint8_t {
 class Board {
 public:
     Board();
-    Board(const std::string& board);
+    Board(const std::string& FEN);
 
     Piece at(uint16_t x, uint16_t y) const;
 
@@ -39,7 +39,18 @@ private:
     static Piece _convert_to_piece(const char c);
     static char _convert_to_char(Piece piece);
 
+    void _parse_FEN(std::string FEN);
+
 private:
-    std::array<uint8_t, 64> board;
+    std::array<uint8_t, 64> _board;
+    
+    bool _turn; // white = true, black = false
+    // 0 = white king side, 1 = white queen side
+    // 2 = black king side, 3 = black queen side
+    std::array<bool, 4> _castle_rights; 
+    int _en_passant; // true if possible, false if not
+    
+    uint32_t _move_count; 
+    uint32_t _half_clock_move_count;
 
 };
