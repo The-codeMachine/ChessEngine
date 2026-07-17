@@ -2,8 +2,7 @@
 
 namespace Moves {
 
-    bool moveWhitePawn(int x, int y, int xx, int yy, Board& board);
-    bool moveBlackPawn(int x, int y, int xx, int yy, Board& board);
+    bool movePawn(int x, int y, int xx, int yy, Board& board, bool turn);
 
     bool moveRook(int x, int y, int xx, int yy, Board& board, bool turn);
     bool moveBishop(int x, int y, int xx, int yy, Board& board, bool turn);

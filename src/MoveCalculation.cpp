@@ -14,9 +14,9 @@ namespace Moves {
         return piece >= 7U && piece != 0U;
     }
 
-    bool moveWhitePawn(int x, int y, int xx, int yy, Board& board) {
-        // checks rank
-        if (yy != y + 1)
+    bool movePawn(int x, int y, int xx, int yy, Board& board, bool turn) {
+        // checks rank (based off if its a white or black pawn)
+        if (turn ? (yy != y + 1) : (yy != y - 1))
             return false;
 
         // if moving forward, that square must be empty
@@ -28,24 +28,7 @@ namespace Moves {
             return false;
 
         // checks that square is occupied by a black piece
-        return isBlack(xx, yy, board);
-    }
-
-    bool moveBlackPawn(int x, int y, int xx, int yy, Board& board) {
-        // checks rank 
-        if (yy != y - 1)
-            return false;
-
-        // if moving forward then square must be empty
-        if (xx == x && board.empty(xx, yy))
-            return true;
-        
-        // if not moving forward, must be moving diagonally
-        if (xx != x + 1 && xx != x - 1)
-            return false;
-
-        // checks that the square is occupied by a white piece
-        return isWhite(xx, yy, board);
+        return turn != isWhite(xx, yy, board);
     }
 
     bool moveRook(int x, int y, int xx, int yy, Board& board, bool turn) {
@@ -53,19 +36,19 @@ namespace Moves {
         // if it is not then check if it is a black piece.
         // if the piece coorespondes with the turn then it is
         // invalid.
-        if (isWhite(xx, yy, board) == turn)
+        if (!board.empty(xx, yy) && isWhite(xx, yy, board) == turn)
             return false;
 
         // if it is moving along a file check all pieces on that file
         if (x == xx) {
-            for (int i = y; i < yy; ++i) {
+            for (int i = std::min(y, yy); i < std::max(y, yy); ++i) {
                 if (!board.empty(x, i))
                     return false;
             }
 
         // if it is moving along a rank, check all pieces on that rank
         } else if (y == yy) {
-            for (int i = x; i < xx; ++i) {
+            for (int i = std::min(x, xx); i < std::max(x, xx); ++i) {
                 if (!board.empty(i, y))
                     return false;
             }
@@ -75,8 +58,33 @@ namespace Moves {
     }
 
     bool moveBishop(int x, int y, int xx, int yy, Board& board, bool turn) {
-        if (isWhite(xx, yy, board) == true)
+        // Cannot capture your own piece.
+        if (!board.empty(xx, yy) && isWhite(xx, yy, board) == turn)
             return false;
+
+        int xDiff = std::abs(xx - x);
+        int yDiff = std::abs(yy - y);
+
+        // Must move diagonally.
+        if (xDiff != yDiff)
+            return false;
+
+        int dx = (xx > x) ? 1 : -1;
+        int dy = (yy > y) ? 1 : -1;
+
+        int cx = x + dx;
+        int cy = y + dy;
+
+        // Check every square between the start and destination.
+        while (cx != xx && cy != yy) {
+            if (!board.empty(cx, cy))
+                return false;
+
+            cx += dx;
+            cy += dy;
+        }
+
+        return true;
     }
 
     bool moveKnight(int x, int y, int xx, int yy, Board& board, bool turn) {
@@ -84,7 +92,7 @@ namespace Moves {
         // if it is not then check if it is a black piece.
         // if the piece coorespondes with the turn then it is
         // invalid.
-        if (isWhite(xx, yy, board) == turn)
+        if (!board.empty(xx, yy) && isWhite(xx, yy, board) == turn)
             return false;
 
         int xDiff = std::abs(x - xx);
@@ -96,15 +104,20 @@ namespace Moves {
     }
 
     bool moveQueen(int x, int y, int xx, int yy, Board& board, bool turn) {
-        if (isWhite(xx, yy, board) == true)
+        if (!board.empty(xx, yy) && isWhite(xx, yy, board) == turn)
             return false;
+
+        return moveRook(x, y, xx, yy, board, turn) || moveBishop(x, y, xx, yy, board, turn);
     }
 
     bool moveKing(int x, int y, int xx, int yy, Board& board, bool turn) {
-        if (isWhite(xx, yy, board) == true)
+        if (!board.empty(xx, yy) && isWhite(xx, yy, board) == turn)
             return false;
+
+        if (std::abs(xx - x) != 1 && std::abs(yy - y) != 1)
+            return false;
+
+        return true;
     }
-
-
 
 } // namespace Moves
