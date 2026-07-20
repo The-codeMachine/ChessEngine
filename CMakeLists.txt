@@ -11,3 +11,5 @@ add_executable(ChessEngine
     src/Board.cpp
     src/MoveCalculation.cpp
 )
+
+target_include_directories(ChessEngine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)

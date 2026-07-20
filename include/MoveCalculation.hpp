@@ -1,28 +1,31 @@
-#include "Board.hpp"
+#pragma once
+
+#include <Board.hpp>
+
+#include <vector>
 
 /*
-Move calculation consists of generating psuedo-legal
-moves for each piece. This does not check whether the
-king is in check, if a piece is pinned, etc. However,
-this will check whether a piece is:
- - Eligible for en passant
- - Eligible for castling (both sides)
- - Able to capture
- - Able to move to that specific square based off their movement rules
-
-Currently, the functions only consist of checking one 
-specific move. There are no move calculation functions
-yet. 
+This consists of calculation for all valid, legal 
+moves within a single board. Based off a board it
+can generate all valid moves. This includes which
+specific piece to calculate, or all pieces. 
+Exact operations include:
+ - Generate all pseudo legal moves
+ - Generate all legal moves
+ - Generate all pseudo legal moves of a specific piece 
+    (e.g. a specific knight, or queen)
+ - Generate all legal moves of a specific piece (e.g king,
+    or rook)
 
 */
 
+
 namespace Moves {
 
-    bool movePawn(int x, int y, int xx, int yy, Board& board, bool turn);
-    bool moveRook(int x, int y, int xx, int yy, Board& board, bool turn);
-    bool moveBishop(int x, int y, int xx, int yy, Board& board, bool turn);
-    bool moveKnight(int x, int y, int xx, int yy, Board& board, bool turn);
-    bool moveQueen(int x, int y, int xx, int yy, Board& board, bool turn);
-    bool moveKing(int x, int y, int xx, int yy, Board& board, bool turn);
+    std::vector<Move> generatePseudoLegalMoves(Board& board, bool turn);
+    std::vector<Move> generateLegalMoves(Board& board, bool turn);
+
+    std::vector<Move> generatePseudoLegalMoves(Position piece, Board& board, bool turn);
+    std::vector<Move> generateLegalMove(Position piece, Board& board, bool turn);
 
 } // namespace Moves

@@ -1,4 +1,4 @@
-#include "../include/Board.hpp"
+#include <Board.hpp>
 
 #include <sstream>
 #include <stdexcept>
@@ -30,7 +30,7 @@ bool Board::empty(uint16_t x, uint16_t y) const {
     return at(x, y) == Piece::EMPTY;
 }
 
-std::pair<int, int> Board::enPassant() const noexcept {
+Position Board::enPassant() const noexcept {
     return _en_passant;
 }
 

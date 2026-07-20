@@ -4,6 +4,9 @@
 #include <string>
 #include <cstdint>
 
+using Position = std::pair<int, int>;
+using Move = std::pair<Position, Position>;
+
 enum class Piece : uint8_t {
     EMPTY = 0,
     W_PAWN,
@@ -27,7 +30,7 @@ public:
 
     Piece at(uint16_t x, uint16_t y) const;
     bool empty(uint16_t x, uint16_t y) const;
-    std::pair<int, int> enPassant() const noexcept;
+    Position enPassant() const noexcept;
     std::array<bool, 4> castling() const noexcept;
 
     bool move(uint16_t x, uint16_t y, uint16_t xx, uint16_t yy);
@@ -58,7 +61,7 @@ private:
     
     // location of the en passant piece
     // if invalid then == {-1, -1}
-    std::pair<int, int> _en_passant; 
+    Position _en_passant; 
     
     uint32_t _move_count; 
     uint32_t _half_clock_move_count;
