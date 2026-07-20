@@ -4,7 +4,11 @@
 #include <string>
 #include <cstdint>
 
-using Position = std::pair<int, int>;
+struct Position {
+    int x;
+    int y;
+};
+
 using Move = std::pair<Position, Position>;
 
 enum class Piece : uint8_t {
@@ -28,20 +32,20 @@ public:
     Board();
     Board(const std::string& FEN);
 
-    Piece at(uint16_t x, uint16_t y) const;
-    bool empty(uint16_t x, uint16_t y) const;
+    Piece at(Position pos) const;
+    bool empty(Position pos) const;
     Position enPassant() const noexcept;
     std::array<bool, 4> castling() const noexcept;
 
-    bool move(uint16_t x, uint16_t y, uint16_t xx, uint16_t yy);
+    bool move(Move move);
 
     std::string toString(bool pretty = false) const noexcept;
 
 private:
-    static bool _valid_pos(uint16_t x, uint16_t y);
+    static bool _valid_pos(Position pos);
     static bool _valid_pos(uint16_t index);
 
-    static uint16_t _convert_to_1d(uint16_t x, uint16_t y); 
+    static uint16_t _convert_to_1d(Position pos); 
 
     static Piece _convert_to_piece(const char c);
     static char _convert_to_char(Piece piece);

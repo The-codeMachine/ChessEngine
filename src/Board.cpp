@@ -19,15 +19,15 @@ Board::Board(const std::string &FEN) {
     _parse_FEN(FEN);
 }
 
-Piece Board::at(uint16_t x, uint16_t y) const {
-    if (!_valid_pos(x, y))
+Piece Board::at(Position pos) const {
+    if (!_valid_pos(pos))
         throw std::runtime_error("(x, y) is not a valid position");
 
-    return static_cast<Piece>(_board[_convert_to_1d(x, y)]);
+    return static_cast<Piece>(_board[_convert_to_1d(pos)]);
 }
 
-bool Board::empty(uint16_t x, uint16_t y) const {
-    return at(x, y) == Piece::EMPTY;
+bool Board::empty(Position pos) const {
+    return at(pos) == Piece::EMPTY;
 }
 
 Position Board::enPassant() const noexcept {
@@ -45,16 +45,16 @@ std::string Board::toString(bool pretty) const noexcept {
         return _to_fen();
 }
 
-bool Board::_valid_pos(uint16_t x, uint16_t y) {
-    return _valid_pos(_convert_to_1d(x, y));
+bool Board::_valid_pos(Position pos) {
+    return _valid_pos(_convert_to_1d(pos));
 }
 
 bool Board::_valid_pos(uint16_t index) {
     return index < 64;
 }
 
-uint16_t Board::_convert_to_1d(uint16_t x, uint16_t y) {
-    return y * 8 + x;
+uint16_t Board::_convert_to_1d(Position pos) {
+    return pos.y * 8 + pos.x;
 } 
 
 Piece Board::_convert_to_piece(const char c) {
@@ -154,7 +154,7 @@ void Board::_parse_FEN(const std::string &FEN) {
             if (file >= 8 || rank < 0)
                 throw std::runtime_error("Invalid FEN placement.");
 
-            _board[_convert_to_1d(file, rank)] = static_cast<uint8_t>(_convert_to_piece(c));
+            _board[_convert_to_1d({file, rank})] = static_cast<uint8_t>(_convert_to_piece(c));
 
             ++file;
         }
@@ -205,7 +205,7 @@ std::string Board::_to_string() const noexcept {
         out += std::to_string(i + 1);
         for (uint8_t j = 0; j < 8; ++j) {
             out += "| ";
-            out += _convert_to_char(at(j, i));
+            out += _convert_to_char(at({j, i}));
             out += " ";
         }
 
@@ -225,7 +225,7 @@ std::string Board::_to_fen() const noexcept {
         uint8_t empty = 0;
 
         for (int file = 0; file < 8; ++file) {
-            Piece piece = static_cast<Piece>(_board[_convert_to_1d(file, rank)]);
+            Piece piece = static_cast<Piece>(_board[_convert_to_1d({file, rank})]);
 
             if (piece == Piece::EMPTY) {
                 ++empty;
@@ -282,11 +282,11 @@ std::string Board::_to_fen() const noexcept {
     // En passant target square
     out += ' ';
 
-    if (_en_passant.first == -1 && _en_passant.second == -1) {
+    if (_en_passant.x == -1 && _en_passant.y == -1) {
         out += '-';
     } else {
-        int file = _en_passant.first;
-        int rank = _en_passant.second;
+        int file = _en_passant.x;
+        int rank = _en_passant.y;
 
         out += static_cast<char>('a' + file);
         out += static_cast<char>('1' + rank);

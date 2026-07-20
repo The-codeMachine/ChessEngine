@@ -18,11 +18,14 @@ within the MoveCalculation.hpp file.
 
 namespace Moves {
 
-    bool movePawn(int x, int y, int xx, int yy, Board& board, bool turn);
-    bool moveRook(int x, int y, int xx, int yy, Board& board, bool turn);
-    bool moveBishop(int x, int y, int xx, int yy, Board& board, bool turn);
-    bool moveKnight(int x, int y, int xx, int yy, Board& board, bool turn);
-    bool moveQueen(int x, int y, int xx, int yy, Board& board, bool turn);
-    bool moveKing(int x, int y, int xx, int yy, Board& board, bool turn);
+    bool isWhite(Position pos, Board& board);
+    bool isBlack(Position pos, Board& board);
+
+    bool movePawn(Move move, Board& board, bool turn);
+    bool moveRook(Move move, Board& board, bool turn);
+    bool moveBishop(Move move, Board& board, bool turn);
+    bool moveKnight(Move move, Board& board, bool turn);
+    bool moveQueen(Move move, Board& board, bool turn);
+    bool moveKing(Move move, Board& board, bool turn);
 
 } // namespace Moves
