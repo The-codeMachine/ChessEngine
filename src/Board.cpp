@@ -30,6 +30,14 @@ bool Board::empty(uint16_t x, uint16_t y) const {
     return at(x, y) == Piece::EMPTY;
 }
 
+std::pair<int, int> Board::enPassant() const noexcept {
+    return _en_passant;
+}
+
+std::array<bool, 4> Board::castling() const noexcept {
+    return _castle_rights;
+}
+
 std::string Board::toString(bool pretty) const noexcept {
     if (pretty) 
         return _to_string();
@@ -172,7 +180,7 @@ void Board::_parse_FEN(const std::string &FEN) {
     }
 
     if (ep == "-") {
-        _en_passant = -1; 
+        _en_passant = {-1, -1}; 
     } else {
         if (ep.size() != 2 ||
             ep[0] < 'a' || ep[0] > 'h' ||
@@ -182,7 +190,7 @@ void Board::_parse_FEN(const std::string &FEN) {
         int file = ep[0] - 'a';
         int rank = ep[1] - '1';
 
-        _en_passant = rank * 8 + file;
+        _en_passant = {file, rank};
     }
 
     _half_clock_move_count = halfmove;
@@ -274,11 +282,11 @@ std::string Board::_to_fen() const noexcept {
     // En passant target square
     out += ' ';
 
-    if (_en_passant == -1) {
+    if (_en_passant.first == -1 && _en_passant.second == -1) {
         out += '-';
     } else {
-        int file = _en_passant % 8;
-        int rank = _en_passant / 8;
+        int file = _en_passant.first;
+        int rank = _en_passant.second;
 
         out += static_cast<char>('a' + file);
         out += static_cast<char>('1' + rank);
